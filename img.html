@@ -82,4 +82,22 @@
     <div class="frame"><p><a href="T107-1.py" target="_blank">T107-1</a></p><a href="T107-1.py" download><button class="down">Save</button></a></div>
   </div>
 </body>
+<script>
+const birthday = 100510;
+
+const now = new Date();
+const yy = String(now.getFullYear()).slice(-2);
+const mm = String(now.getMonth() + 1).padStart(2, '0');
+const dd = String(now.getDate()).padStart(2, '0');
+
+const todayNumber = Number(yy + mm + dd);
+
+const token = todayNumber - birthday;
+
+const urlToken = Number(new URLSearchParams(location.search).get("token"));
+
+if (urlToken !== token) {
+  document.body.innerHTML = "Thiết bị của bạn bị phát hiện truy cập không hợp pháp!";
+}
+</script>
 </html>
