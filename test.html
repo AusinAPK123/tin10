@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Test phát hiện chuyển tab</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #111;
+      color: #eee;
+    }
+    h1 { color: #0f0; }
+    .status {
+      font-size: 1.3rem;
+      margin: 20px 0;
+      padding: 12px;
+      background: #222;
+      border-radius: 8px;
+    }
+    .ok { color: #0f0; }
+    .bad { color: #f55; }
+    #log {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      padding: 12px;
+      height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+    button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test phát hiện chuyển tab</h1>
+  <p>Hãy chuyển sang tab khác rồi quay lại. Nếu script/extension hoạt động tốt thì <strong>không</strong> nên xuất hiện log "HIDDEN" hoặc "BLUR".</p>
+
+  <div class="status">
+    <div>visibilityState: <span id="vs">...</span></div>
+    <div>document.hidden: <span id="hidden">...</span></div>
+    <div>document.hasFocus(): <span id="focus">...</span></div>
+  </div>
+
+  <div id="log"></div>
+  <button onclick="clearLog()">Xóa log</button>
+
+  <script>
+    const logEl = document.getElementById('log');
+    const vsEl = document.getElementById('vs');
+    const hiddenEl = document.getElementById('hidden');
+    const focusEl = document.getElementById('focus');
+
+    function log(msg, isBad = false) {
+      const time = new Date().toLocaleTimeString();
+      const line = document.createElement('div');
+      line.textContent = `[${time}] ${msg}`;
+      if (isBad) line.style.color = '#f55';
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function updateStatus() {
+      const vs = document.visibilityState;
+      const hidden = document.hidden;
+      const hasFocus = document.hasFocus();
+
+      vsEl.textContent = vs;
+      vsEl.className = vs === 'visible' ? 'ok' : 'bad';
+
+      hiddenEl.textContent = hidden;
+      hiddenEl.className = hidden ? 'bad' : 'ok';
+
+      focusEl.textContent = hasFocus;
+      focusEl.className = hasFocus ? 'ok' : 'bad';
+    }
+
+    // Theo dõi sự kiện
+    document.addEventListener('visibilitychange', () => {
+      log(`visibilitychange → \( {document.visibilityState} | hidden= \){document.hidden}`, document.hidden);
+      updateStatus();
+    });
+
+    window.addEventListener('blur', () => {
+      log('window BLUR (mất focus)', true);
+      updateStatus();
+    });
+
+    window.addEventListener('focus', () => {
+      log('window FOCUS (có focus lại)');
+      updateStatus();
+    });
+
+    // Cập nhật liên tục
+    setInterval(updateStatus, 300);
+    updateStatus();
+
+    log('Trang đã sẵn sàng. Hãy chuyển tab để test...');
+
+    function clearLog() {
+      logEl.innerHTML = '';
+      log('Log đã xóa.');
+    }
+  </script>
+</body>
+</html>
